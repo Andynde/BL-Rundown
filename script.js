@@ -84,6 +84,7 @@ const totalDurationEl = document.getElementById('total-duration');
 const calculatedEndTimeEl = document.getElementById('calculated-end-time');
 const addColumnBtn = document.getElementById('add-column-btn');
 const tableHeader = document.getElementById('table-header');
+const sidebar = document.querySelector('.sidebar');
 
 // ===================================
 // Initialization
@@ -204,6 +205,26 @@ function setupEventListeners() {
     addColumnBtn.addEventListener('click', addCustomColumn);
     
     setupColumnResizing();
+    
+    // Mobile: Close sidebar when clicking outside
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            if (sidebar.classList.contains('open') && 
+                !sidebar.contains(e.target) && 
+                !e.target.closest('#settings-btn')) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+    
+    // Mobile: Toggle sidebar when clicking settings button
+    const originalSettingsBtnClick = settingsBtn.onclick;
+    settingsBtn.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+        }
+    });
 }
 
 // ===================================
@@ -1553,6 +1574,21 @@ function showSaveIndicator() {
     setTimeout(() => {
         saveIndicator.classList.remove('show');
     }, 2000);
+}
+
+// ===================================
+// Service Worker Registration
+// ===================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/BL-Rundown/service-worker.js')
+            .then((registration) => {
+                console.log('Service Worker registered successfully:', registration.scope);
+            })
+            .catch((error) => {
+                console.log('Service Worker registration failed:', error);
+            });
+    });
 }
 
 // ===================================
