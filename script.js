@@ -941,66 +941,72 @@ function renderRundown() {
             tr.classList.add('completed');
         }
         
+        // Drag & Drop handlers - ALWAYS active, even during timer
         tr.addEventListener('dragstart', handleDragStart);
         tr.addEventListener('dragover', handleDragOver);
         tr.addEventListener('drop', handleDrop);
         tr.addEventListener('dragend', handleDragEnd);
         tr.addEventListener('dragleave', handleDragLeave);
         
-        // Preview functionality - ALWAYS add listeners, check globalTimer inside
-        // Set cursor based on whether timer is running
-        if (globalTimer) {
-            tr.style.cursor = 'pointer';
-        }
+        // CRITICAL FIX for Chrome: Also add drop listener to prevent default on dragenter
+        tr.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            return false;
+        });
         
+        // Preview functionality - only when timer is running
         // Single click = Preview (unless it's the current row)
         tr.addEventListener('click', (e) => {
             if (!globalTimer) return; // Only work when timer is running
-            if (!e.target.closest('.editable') && !e.target.closest('.row-actions')) {
-                if (index !== currentRow) {
-                    // Update preview without full re-render
-                    const oldPreview = previewRow;
-                    previewRow = index;
-                    localStorage.setItem('preview-row', index.toString());
-                    
-                    // Update classes only
-                    updateRowClasses();
-                }
+            // Don't interfere with editable cells, row actions, or if dragging
+            if (e.target.closest('.editable') || e.target.closest('.row-actions') || tr.classList.contains('dragging')) {
+                return;
+            }
+            if (index !== currentRow) {
+                // Update preview without full re-render
+                const oldPreview = previewRow;
+                previewRow = index;
+                localStorage.setItem('preview-row', index.toString());
+                
+                // Update classes only
+                updateRowClasses();
             }
         });
         
         // Double click = Take (jump to this row)
         tr.addEventListener('dblclick', (e) => {
             if (!globalTimer) return; // Only work when timer is running
-            if (!e.target.closest('.editable') && !e.target.closest('.row-actions')) {
-                e.preventDefault();
-                currentRow = index;
-                rundown[currentRow].countdown = rundown[currentRow].duration;
-                previewRow = null;
-                localStorage.setItem('current-row', currentRow.toString());
-                localStorage.setItem('preview-row', 'null');
-                
-                // Update classes only, don't re-render
-                updateRowClasses();
-                
-                // Update countdown display for the new current row
-                const rows = tbody.querySelectorAll('.rundown-row');
-                if (rows[index]) {
-                    const countdownCell = rows[index].querySelector('.col-countdown');
-                    if (countdownCell) {
-                        const countdownSeconds = parseTime(rundown[index].countdown);
-                        let countdownClass = 'countdown-display';
-                        if (countdownSeconds < 30 && countdownSeconds > 10) {
-                            countdownClass += ' warning';
-                        } else if (countdownSeconds <= 10) {
-                            countdownClass += ' danger';
-                        }
-                        countdownCell.innerHTML = `<span class="${countdownClass}">${rundown[index].countdown}</span>`;
-                    }
-                }
-                
-                showSaveIndicator();
+            // Don't interfere with editable cells, row actions, or if dragging
+            if (e.target.closest('.editable') || e.target.closest('.row-actions') || tr.classList.contains('dragging')) {
+                return;
             }
+            e.preventDefault();
+            currentRow = index;
+            rundown[currentRow].countdown = rundown[currentRow].duration;
+            previewRow = null;
+            localStorage.setItem('current-row', currentRow.toString());
+            localStorage.setItem('preview-row', 'null');
+            
+            // Update classes only, don't re-render
+            updateRowClasses();
+            
+            // Update countdown display for the new current row
+            const rows = tbody.querySelectorAll('.rundown-row');
+            if (rows[index]) {
+                const countdownCell = rows[index].querySelector('.col-countdown');
+                if (countdownCell) {
+                    const countdownSeconds = parseTime(rundown[index].countdown);
+                    let countdownClass = 'countdown-display';
+                    if (countdownSeconds < 30 && countdownSeconds > 10) {
+                        countdownClass += ' warning';
+                    } else if (countdownSeconds <= 10) {
+                        countdownClass += ' danger';
+                    }
+                    countdownCell.innerHTML = `<span class="${countdownClass}">${rundown[index].countdown}</span>`;
+                }
+            }
+            
+            showSaveIndicator();
         });
         
         const elementType = elementTypes.find(t => t.id === row.typeId) || elementTypes[0] || {
@@ -1164,6 +1170,12 @@ let draggedElement = null;
 let draggedIndex = null;
 
 function handleDragStart(e) {
+    // Don't allow dragging if user is editing a cell or clicking on action buttons
+    if (e.target.closest('.editable') || e.target.closest('.row-actions')) {
+        e.preventDefault();
+        return false;
+    }
+    
     draggedElement = e.currentTarget;
     draggedIndex = parseInt(e.currentTarget.dataset.index);
     e.currentTarget.classList.add('dragging');
@@ -1172,14 +1184,28 @@ function handleDragStart(e) {
 }
 
 function handleDragOver(e) {
+    // CRITICAL: Prevent default FIRST
     if (e.preventDefault) {
         e.preventDefault();
     }
+    
+    // CRITICAL: Must set dropEffect to allow drop
     e.dataTransfer.dropEffect = 'move';
     
     const target = e.currentTarget;
-    if (target !== draggedElement) {
-        target.classList.add('drag-over');
+    
+    // Only show drag-over effect if it's a different row
+    if (target !== draggedElement && target.classList.contains('rundown-row')) {
+        // Only update if not already set (reduces flickering)
+        if (!target.classList.contains('drag-over')) {
+            // Remove drag-over from all rows first
+            document.querySelectorAll('.rundown-row').forEach(row => {
+                row.classList.remove('drag-over');
+            });
+            
+            // Add to current target
+            target.classList.add('drag-over');
+        }
     }
     
     return false;
@@ -1190,18 +1216,20 @@ function handleDragLeave(e) {
 }
 
 function handleDrop(e) {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
+    e.preventDefault();
+    e.stopPropagation();
     
-    e.currentTarget.classList.remove('drag-over');
+    const dropTarget = e.currentTarget;
+    dropTarget.classList.remove('drag-over');
     
-    const dropIndex = parseInt(e.currentTarget.dataset.index);
-    
-    if (draggedIndex !== dropIndex) {
+    if (draggedElement && draggedElement !== dropTarget) {
+        const dropIndex = parseInt(dropTarget.dataset.index);
+        
+        // Move in data array
         const item = rundown.splice(draggedIndex, 1)[0];
         rundown.splice(dropIndex, 0, item);
         
+        // Update current row tracking
         if (currentRow === draggedIndex) {
             currentRow = dropIndex;
         } else if (draggedIndex < currentRow && dropIndex >= currentRow) {
@@ -1210,12 +1238,19 @@ function handleDrop(e) {
             currentRow++;
         }
         
+        // Update preview row tracking
         if (previewRow === draggedIndex) {
             previewRow = dropIndex;
         } else if (draggedIndex < previewRow && dropIndex >= previewRow) {
             previewRow--;
         } else if (draggedIndex > previewRow && dropIndex <= previewRow) {
             previewRow++;
+        }
+        
+        // Save and re-render
+        localStorage.setItem('current-row', currentRow.toString());
+        if (previewRow !== null) {
+            localStorage.setItem('preview-row', previewRow.toString());
         }
         
         renderRundown();

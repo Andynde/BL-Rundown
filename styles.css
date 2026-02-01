@@ -480,6 +480,19 @@ body {
 .rundown-table tbody tr {
     transition: all var(--transition-base);
     border-bottom: 1px solid var(--border-color);
+    cursor: grab !important;
+}
+
+.rundown-table tbody tr:active {
+    cursor: grabbing !important;
+}
+
+.rundown-table tbody tr[draggable="true"] {
+    cursor: grab !important;
+}
+
+.rundown-table tbody tr[draggable="true"]:active {
+    cursor: grabbing !important;
 }
 
 .rundown-table tbody tr:hover {
@@ -737,6 +750,7 @@ body {
     border-radius: var(--radius-sm);
     padding: var(--spacing-sm);
     transition: background var(--transition-base);
+    user-select: text;
 }
 
 .editable:hover {
@@ -747,6 +761,13 @@ body {
     outline: 2px solid var(--primary-color);
     outline-offset: -2px;
     background: var(--bg-primary);
+}
+
+/* Prevent editable cells from being draggable */
+.editable {
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    user-drag: none;
 }
 
 /* Status Badge */
