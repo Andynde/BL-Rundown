@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BL Rundown - Vorschau</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+    <div class="preview-container">
+        
+        <!-- Header -->
+        <header class="preview-header">
+            <div class="rundown-info">
+                <h1 id="rundown-name">Rundown Vorschau</h1>
+                <div class="status-indicator" id="status-indicator">
+                    <i class="fas fa-circle"></i>
+                    <span id="status-text">Bereit</span>
+                </div>
+            </div>
+            <div class="current-time-display">
+                <i class="fas fa-clock"></i>
+                <span id="current-time">00:00:00</span>
+            </div>
+        </header>
+
+        <!-- Main Display -->
+        <main class="preview-main">
+            
+            <!-- Time Overview -->
+            <section class="time-overview">
+                <div class="time-card">
+                    <div class="time-label">
+                        <i class="fas fa-play-circle"></i>
+                        Startzeit
+                    </div>
+                    <div class="time-value" id="start-time">--:--</div>
+                </div>
+                
+                <div class="time-card">
+                    <div class="time-label">
+                        <i class="fas fa-hourglass-half"></i>
+                        Gesamtdauer
+                    </div>
+                    <div class="time-value" id="total-duration">00:00</div>
+                </div>
+                
+                <div class="time-card highlight">
+                    <div class="time-label">
+                        <i class="fas fa-flag-checkered"></i>
+                        Endzeit
+                    </div>
+                    <div class="time-value" id="end-time">--:--</div>
+                </div>
+            </section>
+
+            <!-- Current Point (ON AIR) -->
+            <section class="current-point">
+                <div class="section-header on-air">
+                    <i class="fas fa-circle pulse"></i>
+                    <h2>ON AIR</h2>
+                </div>
+                <div class="point-card current" id="current-point">
+                    <div class="point-number">#<span id="current-number">-</span></div>
+                    <div class="point-content">
+                        <div class="point-type" id="current-type">
+                            <i class="fas fa-circle"></i>
+                            <span>-</span>
+                        </div>
+                        <div class="point-description" id="current-description">Kein aktiver Punkt</div>
+                        <div class="point-meta">
+                            <span class="point-time">
+                                <i class="fas fa-clock"></i>
+                                <span id="current-start-time">--:--</span>
+                            </span>
+                            <span class="point-duration">
+                                <i class="fas fa-hourglass"></i>
+                                <span id="current-duration">00:00</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="point-countdown">
+                        <div class="countdown-label">Countdown</div>
+                        <div class="countdown-value" id="current-countdown">00:00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Point -->
+            <section class="next-point">
+                <div class="section-header next">
+                    <i class="fas fa-forward"></i>
+                    <h2>NÄCHSTER PUNKT</h2>
+                </div>
+                <div class="point-card next" id="next-point">
+                    <div class="point-number">#<span id="next-number">-</span></div>
+                    <div class="point-content">
+                        <div class="point-type" id="next-type">
+                            <i class="fas fa-circle"></i>
+                            <span>-</span>
+                        </div>
+                        <div class="point-description" id="next-description">Kein nächster Punkt</div>
+                        <div class="point-meta">
+                            <span class="point-time">
+                                <i class="fas fa-clock"></i>
+                                <span id="next-start-time">--:--</span>
+                            </span>
+                            <span class="point-duration">
+                                <i class="fas fa-hourglass"></i>
+                                <span id="next-duration">00:00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview Point (if selected) -->
+            <section class="preview-point" id="preview-section" style="display: none;">
+                <div class="section-header preview">
+                    <i class="fas fa-eye"></i>
+                    <h2>PREVIEW</h2>
+                </div>
+                <div class="point-card preview" id="preview-point">
+                    <div class="point-number">#<span id="preview-number">-</span></div>
+                    <div class="point-content">
+                        <div class="point-type" id="preview-type">
+                            <i class="fas fa-circle"></i>
+                            <span>-</span>
+                        </div>
+                        <div class="point-description" id="preview-description">-</div>
+                        <div class="point-meta">
+                            <span class="point-time">
+                                <i class="fas fa-clock"></i>
+                                <span id="preview-start-time">--:--</span>
+                            </span>
+                            <span class="point-duration">
+                                <i class="fas fa-hourglass"></i>
+                                <span id="preview-duration">00:00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="preview-footer">
+            <div class="connection-status">
+                <i class="fas fa-link" id="connection-icon"></i>
+                <span id="connection-text">Verbunden mit Rundown</span>
+            </div>
+            <div class="last-update">
+                Letzte Aktualisierung: <span id="last-update">--:--:--</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="preview.js"></script>
+</body>
+</html>

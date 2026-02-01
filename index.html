@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BL Rundown Studio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-list-check"></i> Elemente</h2>
+                <button id="settings-btn" class="icon-btn" title="Einstellungen">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div id="elements-list" class="elements-list"></div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="add-element-type" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Neuer Elementtyp
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <input id="rundown-name" type="text" class="rundown-title" placeholder="Rundown-Name" value="Mein Rundown">
+                    <span class="save-indicator" id="save-indicator">
+                        <i class="fas fa-check-circle"></i> Gespeichert
+                    </span>
+                </div>
+                
+                <div class="header-center">
+                    <div class="time-display">
+                        <i class="fas fa-clock"></i>
+                        <span id="current-time">00:00:00</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                <div class="end-time-group">
+                    <label for="end-time">
+                        <i class="fas fa-flag-checkered"></i> Endzeit (optional)
+                    </label>
+                    <input id="end-time" type="time" class="time-input" placeholder="Optional">
+                </div>
+                    <button id="start-btn" class="btn btn-success">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button id="reset-btn" class="btn btn-secondary">
+                        <i class="fas fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+            </header>
+
+            <!-- Rundown Table -->
+            <div class="table-container">
+                <div class="table-controls">
+                    <div class="total-time">
+                        <i class="fas fa-clock"></i>
+                        <span>Gesamtzeit: <strong id="total-duration">00:00</strong></span>
+                        <span class="separator">|</span>
+                        <span>Endzeit: <strong id="calculated-end-time">--:--</strong></span>
+                    </div>
+                    <button id="add-column-btn" class="btn btn-outline btn-sm">
+                        <i class="fas fa-plus"></i> Spalte hinzufügen
+                    </button>
+                </div>
+                
+                <table id="rundown-table" class="rundown-table">
+                    <thead>
+                        <tr id="table-header">
+                            <th class="col-number resizable">#<div class="resizer"></div></th>
+                            <th class="col-starttime resizable">Startzeit<div class="resizer"></div></th>
+                            <th class="col-status resizable">Status<div class="resizer"></div></th>
+                            <th class="col-type resizable">Typ<div class="resizer"></div></th>
+                            <th class="col-countdown resizable">Countdown<div class="resizer"></div></th>
+                            <th class="col-duration resizable">Dauer<div class="resizer"></div></th>
+                            <th class="col-description resizable">Beschreibung<div class="resizer"></div></th>
+                            <th class="col-notes resizable">Notizen<div class="resizer"></div></th>
+                            <th class="col-actions">Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rundown-body">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Keine Elemente vorhanden</h3>
+                    <p>Klicke auf ein Element in der Seitenleiste, um eine neue Zeile hinzuzufügen</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Einstellungen</h2>
+                <button class="modal-close" id="close-settings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Elementtypen verwalten</h3>
+                    <p class="settings-description">Erstelle und bearbeite Standard-Elementtypen für deinen Rundown</p>
+                    
+                    <div id="element-types-list" class="element-types-list"></div>
+                    
+                    <button id="add-new-type" class="btn btn-outline">
+                        <i class="fas fa-plus"></i> Neuen Typ hinzufügen
+                    </button>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Darstellung</h3>
+                    <div class="setting-item">
+                        <label for="theme-toggle">
+                            <i class="fas fa-moon"></i> Dark Mode
+                        </label>
+                        <label class="switch">
+                            <input type="checkbox" id="theme-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="save-settings" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="fab-add-row" class="fab" title="Neue Zeile hinzufügen">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
